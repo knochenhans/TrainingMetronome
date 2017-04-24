@@ -2,45 +2,82 @@
 #define EXERCISE_H
 
 #include <QString>
-#include <QVector>
 #include <QDataStream>
-#include <QMap>
+#include <QCryptographicHash>
 
-#include "track.h"
+class Exercise {
+  public:
+    Exercise() {}
+    Exercise(const QString& pName, const QString& pAuthor,
+             const QString& pDescription);
+    Exercise(const QString& pId, const QString& pName, const QString& pAuthor,
+             const QString& pDescription);
 
-class Exercise
-{
-public:
-	Exercise() {}
-	Exercise(const QString &pId, const QString &pName, const QString &pAuthor, const QString &pDescription, QList<Track> &pTracks);
+    const QString getId() const {
+        return id;
+    }
+    void setId(const QString value) {
+        id = value;
+    }
 
-	const QString getId() const { return id; }
-	void setId(const QString pId) { id = pId; }
+    const QString getName() const {
+        return name;
+    }
+    void setName(const QString value) {
+        name = value;
+    }
 
-	const QString getName() const { return name; }
-	void setName(const QString pName) { name = pName; }
+    const QString getAuthor() const {
+        return author;
+    }
+    void setAuthor(const QString value) {
+        author = value;
+    }
 
-	const QString getAuthor() const { return author; }
-	void setAuthor(const QString pAuthor) { author = pAuthor; }
+    const QString getDescription() const {
+        return description;
+    }
+    void setDescription(const QString value) {
+        description = value;
+    }
 
-	const QString getDescription() const { return description; }
-	void setDescription(const QString pDescription) { description = pDescription; }
+    const quint16 getBeats() const {
+        return beats;
+    }
+    void setBeats(const quint16& value) {
+        beats = value;
+    }
 
-	QList<Track> getTracks() const { return tracks; }
-	void setTracks(QList<Track> &pTracks) { tracks = pTracks; }
+    const quint16 getAccBeat() const {
+        return accBeat;
+    }
+    void setAccBeat(const quint16& value) {
+        accBeat = value;
+    }
 
-	// Erzeugt einen Clicktrack, der während der Übung abgespielt werden sollen. Der Track wird automatisch an die Trackliste angehängt
-	void generateClickTrack(int pUpbeatSteps, int pDownbeatSteps, int pSourceTrackIndex);
+    const quint16 getLength() const {
+        return length;
+    }
+    void setLength(const quint16& value) {
+        length = value;
+    }
 
-private:
-	QString id;
-	QString name;
-	QString author;
-	QString description;
-	QList<Track> tracks;
+  private:
+    QString id;
+    QString name;
+    QString author;
+    QString description;
 
-	friend QDataStream &operator <<(QDataStream &out, const Exercise &exercise);
-	friend QDataStream &operator >>(QDataStream &in, Exercise &exercise);
+    quint16 beats;
+    quint16 accBeat;
+    quint16 length;
+
+    friend QDataStream& operator <<(QDataStream& out, const Exercise& exercise);
+    friend QDataStream& operator >>(QDataStream& in, Exercise& exercise);
+
+    QString generateId();
 };
+
+Q_DECLARE_METATYPE(Exercise)
 
 #endif // EXERCISE_H

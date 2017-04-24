@@ -1,106 +1,72 @@
 #include "exercise.h"
 
-Exercise::Exercise(const QString &pId, const QString &pName, const QString &pAuthor, const QString &pDescription, QList<Track> &pTracks)
+Exercise::Exercise(const QString& pName, const QString& pAuthor,
+                   const QString& pDescription) : name(pName), author(pAuthor), description(pDescription)
 {
-	id = pId;
-	name = pName;
-	author = pAuthor;
-	description = pDescription;
-	tracks = pTracks;
+    id = generateId();
 }
 
-void Exercise::generateClickTrack(int pUpbeatSteps, int pDownbeatSteps, int pSourceTrackIndex)
+Exercise::Exercise(const QString& pId, const QString& pName, const QString& pAuthor,
+                   const QString& pDescription) : id(pId), name(pName), author(pAuthor), description(pDescription)
 {
-	// Alle pUpbeatSteps wird ein Upbeat-Akzent gesetzt, alle pDownbeatSteps ein Downbeat-Step
-	int length = tracks[pSourceTrackIndex].getStepCount();
-
-	// Percussion-Instrument erzeugen
-
-	Instrument instrument("Percussion");
-
-	QList<quint8> stringTunings;
-	stringTunings.append(0);
-
-	// Eine Stimme sollte erstmal reichen
-	instrument.setStringCount(1);
-	instrument.setStringTunings(stringTunings);
-	instrument.setPercussion(true);
-
-	// Standard-Kit setzen
-	instrument.setMidiProgram(0);
-
-	Track track(instrument, 1, length);
-
-	Note noteUpbeat(56, 127);
-	Note noteDownbeat(37, 127);
-
-	int s = 0;
-
-	while(s < length)
-	{
-		track.setNote(noteDownbeat, 0, s);
-		s += pDownbeatSteps;
-	}
-
-	s = 0;
-
-	while(s < length)
-	{
-		track.setNote(noteUpbeat, 0, s);
-		s += pUpbeatSteps;
-	}
-
-	tracks.append(track);
 }
 
-QDataStream &operator <<(QDataStream &out, const Exercise &exercise)
+
+QString Exercise::generateId()
 {
-	out << exercise.getId()
-		<< exercise.getName()
-		<< exercise.getAuthor()
-		<< exercise.getDescription();
+    const QString possibleCharacters("abcdef0123456789");
+    const int randomStringLength = 16;
 
-	out << exercise.tracks.size();
+    QString randomString;
 
-	for(int t = 0; t < exercise.tracks.size(); t++)
-	{
-		out	<< exercise.tracks.at(t);
-	}
+    for (int i = 0; i < randomStringLength; ++i) {
+        int index = qrand() % possibleCharacters.length();
+        QChar nextChar = possibleCharacters.at(index);
+        randomString.append(nextChar);
+    }
 
-	return out;
+    return randomString;
 }
 
-QDataStream &operator >>(QDataStream &in, Exercise &exercise)
+QDataStream& operator <<(QDataStream& out, const Exercise& exercise)
 {
-	QString id;
-	QString name;
-	QString author;
-	QString description;
-	QList<Track> tracks;
+    out << exercise.getId()
+        << exercise.getName()
+        << exercise.getAuthor()
+        << exercise.getDescription()
+        << exercise.getBeats()
+        << exercise.getAccBeat()
+        << exercise.getLength();
 
-	in	>> id
-		>> name
-		>> author
-		>> description;
+    return out;
+}
 
-	int trackCount;
+QDataStream& operator >>(QDataStream& in, Exercise& exercise)
+{
+    QString id;
+    QString name;
+    QString author;
+    QString description;
 
-	in >> trackCount;
+    quint16 beats;
+    quint16 accBeat;
+    quint16 length;
 
-	for(int t = 0; t < trackCount; t++)
-	{
-		Track track;
+    in  >> id
+        >> name
+        >> author
+        >> description
+        >> beats
+        >> accBeat
+        >> length;
 
-		in	>> track;
+    exercise.setId(id);
+    exercise.setName(name);
+    exercise.setAuthor(author);
+    exercise.setDescription(description);
+    exercise.setBeats(beats);
+    exercise.setAccBeat(accBeat);
+    exercise.setLength(length);
 
-		tracks.append(track);
-	}
-
-	exercise.setId(id);
-	exercise.setName(name);
-	exercise.setAuthor(author);
-	exercise.setDescription(description);
-	exercise.setTracks(tracks);
-
-	return in;
+    return in;
 }

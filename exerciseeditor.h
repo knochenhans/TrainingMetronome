@@ -1,17 +1,16 @@
 #ifndef EXERCISEEDITOR_H
 #define EXERCISEEDITOR_H
 
-#include <QWidget>
+#include <QDialog>
 
-class ExerciseEditor : public QWidget
-{
+class ExerciseEditor : public QDialog {
     Q_OBJECT
-public:
-    explicit ExerciseEditor(QWidget *parent = 0);
+  public:
+    explicit ExerciseEditor(QDialog* parent = 0);
 
-signals:
+  signals:
 
-public slots:
+  public slots:
 };
 
 #endif // EXERCISEEDITOR_H
